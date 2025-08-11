@@ -1,0 +1,2107 @@
+ -- 📜 Blacklist Config
+local blacklist = {
+    "Nigga",
+    "NomeDoPlayer2",
+}
+
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+-- Controle para parar spam de mensagens depois
+local spamRunning = true
+
+-- Criar sons múltiplos do som 6129291390, tocando ao mesmo tempo, sem reiniciar nem acelerar
+local function playMultipleSounds()
+    local soundCount = 10 -- 10 sons simultâneos
+    for i = 1, soundCount do
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://6129291390"
+        sound.Volume = 10
+        sound.Looped = true
+        sound.PlaybackSpeed = 1
+        sound.Parent = workspace
+        sound:Play()
+    end
+end
+
+-- Tela tremendo e piscando vermelho intenso
+local function setRedMap()
+    task.spawn(function()
+        while spamRunning do
+            Lighting.Ambient = Color3.fromRGB(255, 0, 0)
+            Lighting.OutdoorAmbient = Color3.fromRGB(255, 0, 0)
+            Lighting.FogColor = Color3.fromRGB(255, 0, 0)
+            Lighting.FogEnd = math.random(20, 60)
+            Lighting.Brightness = 0
+            task.wait(0.15)
+            Lighting.Ambient = Color3.fromRGB(50, 0, 0)
+            Lighting.OutdoorAmbient = Color3.fromRGB(50, 0, 0)
+            task.wait(0.15)
+        end
+        -- Voltar ao normal após parar o efeito
+        Lighting.Ambient = Color3.new(1,1,1)
+        Lighting.OutdoorAmbient = Color3.new(1,1,1)
+        Lighting.FogColor = Color3.new(1,1,1)
+        Lighting.Brightness = 2
+    end)
+end
+
+-- Câmera tremendo forte
+local function shakeCamera()
+    local cam = workspace.CurrentCamera
+    task.spawn(function()
+        while spamRunning do
+            cam.CFrame = cam.CFrame * CFrame.new(
+                math.random(-3, 3) * 0.3,
+                math.random(-3, 3) * 0.3,
+                math.random(-3, 3) * 0.3
+            )
+            task.wait(0.03)
+        end
+    end)
+end
+
+-- Mensagens flutuando em volta do personagem, uma a uma
+local floatingMessages = {
+    "You are pathetic hahaha",
+    "Noob hahaha",
+    "You stupid hahaha",
+    "😂😂",
+    "Worthless",
+    "Get lost",
+    "Don't come back",
+}
+
+local function createFloatingMessage(text, position)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+
+    local label = Instance.new("TextLabel")
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.TextColor3 = Color3.fromRGB(255, 0, 0)
+    label.TextStrokeTransparency = 0
+    label.TextStrokeColor3 = Color3.new(0,0,0)
+    label.Font = Enum.Font.Arcade
+    label.TextScaled = true
+    label.Text = text
+    label.Parent = billboard
+
+    billboard.Adornee = position
+    billboard.Parent = workspace
+
+    -- Faz a mensagem subir e desaparecer
+    spawn(function()
+        for i = 1, 50 do
+            billboard.StudsOffset = billboard.StudsOffset + Vector3.new(0, 0.05, 0)
+            task.wait(0.05)
+        end
+        billboard:Destroy()
+    end)
+end
+
+local function showFloatingMessagesSequential()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local torso = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
+    if not torso then return end
+
+    for _, msg in ipairs(floatingMessages) do
+        if not spamRunning then break end
+        createFloatingMessage(msg, torso)
+        task.wait(2) -- uma mensagem a cada 2 segundos
+    end
+end
+
+-- Mensagens de xingamentos em tela cheia, spam e crescendo rápido
+local screenMessages = {
+    "Pathetic!",
+    "Loser!",
+    "Go away!",
+    "You don't belong here!",
+    "Stop wasting time!",
+    "No chance for you!",
+    "Get out!",
+    "Failure!",
+    "Hahaha!",
+    "Trash!",
+}
+
+local function spamMessagesOnScreen()
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = "SpamMessagesGui"
+
+    while spamRunning do
+        local msg = screenMessages[math.random(1, #screenMessages)]
+        local label = Instance.new("TextLabel")
+        label.Parent = gui
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.fromRGB(255, 0, 0)
+        label.TextStrokeTransparency = 0
+        label.TextStrokeColor3 = Color3.new(0, 0, 0)
+        label.Font = Enum.Font.Arcade
+        label.TextScaled = true
+        label.Text = msg
+        label.Size = UDim2.new(0, 400, 0, 100)
+        label.Position = UDim2.new(math.random(), 0, math.random(), 0)
+        label.Rotation = math.random(-30, 30)
+
+        -- Animação para sumir rápido
+        TweenService:Create(label, TweenInfo.new(1), {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
+
+        task.delay(1, function()
+            if label then label:Destroy() end
+        end)
+
+        task.wait(0.1)
+    end
+    gui:Destroy()
+end
+
+-- Função para girar o personagem rápido antes de explodir
+local function spinCharacter()
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local spinTime = 3
+    local elapsed = 0
+
+    while elapsed < spinTime do
+        hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(30), 0)
+        task.wait(0.03)
+        elapsed = elapsed + 0.03
+    end
+end
+
+-- Explode personagem com força e partes voando
+local function explodeCharacterWithForce()
+    local char = player.Character
+    if not char then return end
+
+    for _, part in pairs(char:GetChildren()) do
+        if part:IsA("BasePart") then
+            local explosion = Instance.new("Explosion")
+            explosion.Position = part.Position
+            explosion.BlastRadius = 10
+            explosion.BlastPressure = 999999
+            explosion.Parent = workspace
+
+            -- Força para voar partes
+            local bodyForce = Instance.new("BodyVelocity")
+            bodyForce.Velocity = Vector3.new(
+                math.random(-100, 100),
+                math.random(50, 150),
+                math.random(-100, 100)
+            )
+            bodyForce.P = 1000
+            bodyForce.MaxForce = Vector3.new(1e5,1e5,1e5)
+            bodyForce.Parent = part
+
+            -- Remove a força depois de 1 segundo
+            task.delay(1, function()
+                bodyForce:Destroy()
+            end)
+        end
+    end
+end
+
+-- Explosões espalhadas pelo mapa após explosão do player
+local function spawnMapExplosions()
+    for i = 1, 20 do
+        local pos = Vector3.new(
+            math.random(-200, 200),
+            math.random(10, 50),
+            math.random(-200, 200)
+        )
+        local explosion = Instance.new("Explosion")
+        explosion.Position = pos
+        explosion.BlastRadius = 15
+        explosion.BlastPressure = 500000
+        explosion.Parent = workspace
+        task.wait(0.1)
+    end
+end
+
+-- Deixar vida dos jogadores vermelha e corpo meio transparente e depois sumir
+local function applyRedFadeToPlayers()
+    for _, plr in pairs(Players:GetPlayers()) do
+        local char = plr.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.Health = 1 -- deixar quase morto
+            end
+            for _, part in pairs(char:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.BrickColor = BrickColor.new("Bright red")
+                    part.Transparency = 0.5
+                end
+            end
+        end
+    end
+end
+
+-- Função que aplica todos efeitos da blacklist
+local function applyBlacklistEffect()
+    spamRunning = true
+
+    -- Começa o som em 10 instâncias
+    playMultipleSounds()
+
+    -- Mapa vermelho e piscando
+    setRedMap()
+
+    -- Tela tremendo
+    shakeCamera()
+
+    -- Personagem lento
+    task.spawn(function()
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = 8
+            hum.JumpPower = 10
+        end
+    end)
+
+    -- Mostrar mensagens flutuantes em volta do personagem, uma por vez
+    task.spawn(function()
+        while spamRunning do
+            showFloatingMessagesSequential()
+            task.wait(1)
+        end
+    end)
+
+    -- Mostrar mensagens de xingamentos na tela (spam)
+    task.spawn(function()
+        spamMessagesOnScreen()
+    end)
+
+    -- Espera 12 segundos para começar a girar e explodir
+    task.wait(12)
+
+    -- Parar spam para parar efeitos de tremor e luz
+    spamRunning = false
+
+    -- Girar personagem rápido antes de explodir
+    spinCharacter()
+
+    -- Explodir personagem com força e partes voando
+    explodeCharacterWithForce()
+
+    -- Resetar personagem (forçar respawn)
+    task.wait(0.5)
+    if player.Character then
+        player.Character:BreakJoints()
+    end
+
+    -- Aplicar vida vermelha e corpo transparente e depois sumir dos outros jogadores
+    applyRedFadeToPlayers()
+
+    -- Explosões espalhadas pelo mapa
+    spawnMapExplosions()
+
+    -- Mensagem final na tela antes do kick
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = "BanMessageGui"
+
+    local label = Instance.new("TextLabel")
+    label.Parent = gui
+    label.Size = UDim2.new(1,0,1,0)
+    label.BackgroundColor3 = Color3.new(0,0,0)
+    label.BackgroundTransparency = 0.7
+    label.TextColor3 = Color3.fromRGB(255,0,0)
+    label.Font = Enum.Font.Arcade
+    label.TextScaled = true
+    label.Text = "YOU HAVE BEEN BANNED FROM LT\nDO NOT RETURN"
+    label.TextStrokeColor3 = Color3.new(0,0,0)
+    label.TextStrokeTransparency = 0
+    label.TextWrapped = true
+
+    task.wait(3)
+
+    -- Kickar o player
+    player:Kick("You are banned from LT Get support: https://discord.gg/U2wDhtdR7X")
+end
+
+-- Check blacklist and run effect
+if table.find(blacklist, player.Name) then
+    applyBlacklistEffect()
+end
+
+   -- InicializaÃƒÂ§ÃƒÂ£o da Orion Library
+    local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/9menta/Orion-Library/refs/heads/main/OrionLib2.lua')))()
+
+    
+    local Players = game:GetService("Players")
+    local httpService = game:GetService("HttpService")
+    
+    local req = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+    
+    req({
+        Url = "http://127.0.0.1:6463/rpc?v=1",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json",
+            ["Origin"] = "https://discord.com"
+        },
+        Body = httpService:JSONEncode({
+            cmd = "INVITE_BROWSER",
+            args = {
+                code = "h3RzC6BFSq"
+            },
+            nonce = httpService:GenerateGUID(false)
+        })
+    })
+    
+    -- CriaÃƒÂ§ÃƒÂ£o da janela principal
+    local Window = OrionLib:MakeWindow({
+        Name = "LT FRUITS OFC",
+        HidePremium = true, 
+        SaveConfig = true, 
+        ConfigFolder = "SuspectConfig",
+        IntroText = "LT FRUITS DEV🦈",
+        SearchBar = {
+            Default = "Search tab",
+            ClearTextOnFocus = true
+        }
+    })
+
+-- Notificações
+local Notification = loadstring(game:HttpGet(('https://raw.githubusercontent.com/treeofplant/Notif/main/library.lua'), true))()
+
+Notification:NewNotification({
+    Mode = "Custom",
+    Title = "LT FRUITS OFC",
+    Description = "Best script ever!",
+    Notification_Image = "rbxassetid://70948224300476",
+    Notification_Sound = "rbxassetid://4924922222",
+    Timeout = 5,
+    Audio = true,
+})
+
+Notification:NewNotification({
+    Mode = "Custom",
+    Title = "Join discord",
+    Description = "https://discord.gg/U2wDhtdR7X",
+    Notification_Image = "rbxassetid://70948224300476",
+    Notification_Sound = "rbxassetid://7257241917",
+    Timeout = 5,
+    Audio = true,
+})
+
+-- VariÃ¡vel para controlar o estado do Farm Dummy
+local autoPVPLoop
+local isActive = false
+local FarmDummy = false
+local AutoFarmDummy5k = false
+local AutoFarmCoins = false
+local isFarmingBoss = false
+local Farmbssv2 = false
+local farmAll = false
+local activeTasks = {}
+local FarmKillMe = false
+local KillPlayers = false
+local KillAllPlayersActive = false
+local autoPvpEnabled = false
+local KillAura = false
+local autoRetaliateActive = false
+local SpamClanActive = false
+local SpamClanYK2Active = false
+local isActive = false
+local SpamItensActive = false
+
+-- FunÃ§Ã£o para encerrar todas as tarefas ativas
+local function stopAllTasks()
+    for _, task in ipairs(activeTasks) do
+        task:Disconnect()
+    end
+    activeTasks = {}
+end
+
+    --------------------------------------- discord -------------------------------------------------------------------------------------------------------------------------------------------
+    
+local Tab2 = Window:MakeTab({
+Name = "Discord",
+Icon = "rbxassetid://118092618687213",
+PremiumOnly = false
+})
+ 
+Tab2:AddParagraph("📢 Join Our Discord", "For support, updates, and to connect with the community, join our Discord server!")
+
+Tab2:AddButton({
+Name = "Discord Invite",
+Callback = function()
+    local getcode2 = "https://discord.gg/U2wDhtdR7X"
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Discord Invite";
+        Text = "Link copied to clipboard!";
+        Duration = 5;
+    })
+    setclipboard(getcode2)
+end	  
+})
+
+    --------------------------------------- main -------------------------------------------------------------------------------------------------------------------------------------------
+    
+ -- CriaÃ§Ã£o da aba "Main"
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://90095205604357",
+    PremiumOnly = false
+})
+
+-- Mensagens de texto
+MainTab:AddParagraph("❤️ Welcome!", "Thank you for using this script! Please follow all instructions carefully to ensure optimal performance.")
+
+MainTab:AddParagraph("📣 Instructions", [[
+1. Navigate through the available tabs in the menu to explore options.
+2. Activate desired features by clicking on the corresponding buttons.
+3. Use the teleports in the 'Teleports' tab for quick movement between locations.
+4. Enjoy the script features available in the 'Scripts' tab.
+]])
+
+MainTab:AddParagraph("📑 Information", [[
+Version: 5.0.6  
+Developed by: [azhal7/KOKOJO/TEAM LT]  
+Last Update: 11/08/2025
+
+Improvements:
+- Improved Farm Boss, Farm Bossv2, Kill Aura, Farm Dummy 5k and Farm Dummy.
+
+New Features:
+- Close Combat (attacks players who get close to you)
+- Aimbot Fireball (shoots Fireball at nearby players)
+- Auto PvP FOV (aimbot that tracks target players and attacks them)
+- Dodge + Kill Aura (follows players nearby and applies kill aura)
+- Control Boss and Control Pet
+- Blacklist System
+]])
+
+MainTab:AddParagraph("⁉️ Support", "If you need assistance, contact us on the support server or message the developer directly.")
+
+-- Tutorial para Control Boss e Control Pet
+MainTab:AddParagraph("🛎️ Tutorial - Control Boss and Control Pet", [[
+How to use:
+
+1. Execute the script.
+2. Get close to a Boss or your Pet.
+3. Click on the Boss or Pet to control it.
+
+⚠️ WARNING: DO NOT CLICK ON PLAYERS ⚠️
+]])
+
+MainTab:AddParagraph("🔎 What Was Fixed and Added in This Update", [[
+- New, more organized, and beautiful interface.
+- Improved Farm Boss and Farm All features.
+- Farm Dummy and Farm Dummy 5k now have Fireball (Fireball Light will be added in the next update).
+- Improvements to other options.
+]])
+
+MainTab:AddParagraph("🌙 Farm All", [[
+For the "Farm Kill All" option, we recommend activating it alongside Kill Aura and the game's auto mode for optimal performance.
+]])
+
+MainTab:AddParagraph("📣 Upcoming Features", [[
+Here are some things coming in the next update:
+
+- Virtual character that PvP's against the player (if you type "ez," it will turn into a tryhard).
+- Virtual character with ChatGPT chat API (you can chat with it).
+- Virtual character that performs tasks via command, for example:
+    - If you send "Kill Boss (Boss name)," the character will walk to the boss and start applying damage. When done, it will send a message.
+    - If you send "Collect Coins," the character will go to the coins, grab the model, return to you, and send a message. It will only stop when you send a cancel message.
+- Virtual characters (Admins of LT FRUITS): These characters are designed to help you train your PvP. They will have more health.
+]])
+
+MainTab:AddParagraph("📣 Other Updates", [[
+Other improvements include button upgrades, more options, and much more. Join our Discord server! It's available in the "Discord" tab.
+]])
+
+--------------------------------------- farm -------------------------------------------------------------------------------------------------------------------------------------------
+    
+   local farm = Window:MakeTab({
+        Name = "farm",
+        Icon = "rbxassetid://132965427906211",
+        PremiumOnly = false
+    })
+
+-- Adicionando o Toggle na aba "farm"
+farm:AddToggle({
+    Name = "Farm Dummy",
+    Default = false, -- Valor inicial
+    Callback = function(Value)
+        FarmDummy = Value -- Atualiza a variável FarmDummy com o valor do Toggle
+ 
+        if FarmDummy then
+            -- Toca o som
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+ 
+            -- Inicia o loop para o farm
+            task.spawn(function()
+                while FarmDummy do
+                    pcall(function()
+                        local Dummy = workspace.MAP.dummies:FindFirstChild("Dummy")
+                        if Dummy and Dummy:FindFirstChild("HumanoidRootPart") then
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dummy.HumanoidRootPart.CFrame
+                        end
+                        if Dummy and Dummy:FindFirstChild("Humanoid") then
+                            game:GetService("ReplicatedStorage").jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(Dummy.Humanoid, 1)
+                        end
+                    end)
+                    task.wait()
+                end
+            end)
+
+            -- Ativa o hitting alternando entre NewFireball e NewLightningball
+            task.spawn(function()
+                local toggle = true -- Alternador entre habilidades
+                while FarmDummy do
+                    local skillName = toggle and "NewFireball" or "NewLightningball" -- Alterna entre os ataques
+                    local skillArgs = {
+                        Vector3.new(-126.10099792480469, 646.1202392578125, 594.0977783203125),
+                        skillName
+                    }
+                    game:GetService("ReplicatedStorage").SkillsInRS.RemoteEvent:FireServer(unpack(skillArgs))
+
+                    toggle = not toggle -- Alterna para o próximo ataque na próxima execução
+                    task.wait() -- Pequeno delay antes de repetir
+                end
+            end)
+
+        else
+            -- Quando desativado, cancela o farm e o hitting
+            print("Farm Dummy desativado!")
+        end
+    end
+})
+
+-- Criando a opÃ§Ã£o "ðŸ’« Auto Farm Dummy 5k"
+farm:AddToggle({
+    Name = "Auto Farm Dummy 5k",
+    CurrentValue = AutoFarmDummy5k,
+    Callback = function(Value)
+        AutoFarmDummy5k = Value
+
+        if AutoFarmDummy5k then
+            -- Toca o som quando o farm é ativado
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+
+            -- Inicia o loop de farm e hitting
+            task.spawn(function()
+                while AutoFarmDummy5k do
+                    pcall(function()
+                        local Dummy2 = workspace.MAP["5k_dummies"]:FindFirstChild("Dummy2")
+                        if Dummy2 and Dummy2:FindFirstChild("HumanoidRootPart") then
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Dummy2.HumanoidRootPart.CFrame
+                        end
+                        if Dummy2 and Dummy2:FindFirstChild("Humanoid") then
+                            game:GetService("ReplicatedStorage").jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(Dummy2.Humanoid, 2)
+                        end
+                    end)
+
+                    -- Hitting (Dispara os dois ataques um após o outro)
+                    local fireballArgs = {
+                        Vector3.new(-83.04418182373047, 595.0643920898438, 813.4301147460938),
+                        "NewFireball"
+                    }
+                    local lightningArgs = {
+                        Vector3.new(-83.04418182373047, 595.0643920898438, 813.4301147460938),
+                        "NewLightningball"
+                    }
+
+                    game:GetService("ReplicatedStorage").SkillsInRS.RemoteEvent:FireServer(unpack(fireballArgs))
+                    task.wait(0.1) -- Pequeno delay antes do segundo ataque
+                    game:GetService("ReplicatedStorage").SkillsInRS.RemoteEvent:FireServer(unpack(lightningArgs))
+
+                    task.wait(0.1) -- Espera entre os loops
+                end
+            end)
+
+        else
+            print("🫀 Auto Farm Dummy 5k desativado!")
+        end
+    end
+})
+
+local FarmSection = farm:AddSection({
+        Name = "Lt2 🚸"
+    })
+
+-- Criando a opÃ§Ã£o "ðŸ’° Auto Farm Coins"
+farm:AddToggle({
+    Name = "Auto Farm Coins",
+    CurrentValue = AutoFarmCoins,
+    Callback = function(Value)
+        AutoFarmCoins = Value
+
+        if AutoFarmCoins then
+            -- Toca o som quando o farm de moedas Ã© ativado
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+
+            -- Inicia o loop de farm de moedas
+            spawn(function()
+                while AutoFarmCoins do
+                    pcall(function()
+                        game:GetService("ReplicatedStorage").Events.CoinEvent:FireServer()
+                    end)
+                    wait()
+                end
+            end)
+        end
+    end
+})
+
+-- Criando a opÃ§Ã£o "ðŸ¦Š farm boss"
+farm:AddToggle({
+    Name = "Farm Boss",
+    Default = false,
+    Callback = function(value)
+        isFarmingBoss = value
+        if isFarmingBoss then
+            -- Som ao ativar o farm
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = HumanoidRootPart
+            sound:Play()
+
+            task.spawn(function()
+                local ReplicatedStorage = game:GetService("ReplicatedStorage")
+                local bosses = {
+                    "Griffin", "CRABBOSS", "LavaGorilla",
+                    "CENTAUR", "DragonGiraffe", "BOSSBEAR", "BOSSDEER"
+                }
+                while isFarmingBoss do
+                    for _, name in ipairs(bosses) do
+                        local boss = workspace:FindFirstChild("NPC") and workspace.NPC:FindFirstChild(name)
+                        if boss and boss:FindFirstChild("Humanoid") and boss.Humanoid.Health > 0 then
+                            while isFarmingBoss and boss.Humanoid.Health > 0 do
+                                pcall(function()
+                                    ReplicatedStorage.jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(boss.Humanoid, 999999)
+                                end)
+                                task.wait(0.1)
+                            end
+                        end
+                    end
+                    task.wait(0.2)
+                end
+            end)
+        end
+    end
+})
+
+farm:AddToggle({ 
+    Name = "Farm BossV2", 
+    CurrentValue = farmBoss, 
+    Callback = function(Value) 
+        Farmbssv2 = Value
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local LocalPlayer = Players.LocalPlayer
+        local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+        if Farmbssv2 then
+            -- Som ao ativar o farm
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = HumanoidRootPart
+            sound:Play()
+
+            task.spawn(function()
+                local bossNames = { "Griffin", "CRABBOSS", "LavaGorilla", "CENTAUR", "DragonGiraffe", "BOSSDEER", "BOSSBEAR" }
+                local npcFolder = workspace:FindFirstChild("NPC")
+                
+                while Farmbssv2 do
+                    local foundBoss = false
+                    if npcFolder then
+                        for _, bossName in ipairs(bossNames) do
+                            local boss = npcFolder:FindFirstChild(bossName)
+                            if boss then
+                                local bossHRP = boss:FindFirstChild("HumanoidRootPart")
+                                local bossHumanoid = boss:FindFirstChild("Humanoid")
+                                if bossHRP and bossHumanoid and bossHumanoid.Health > 0 then
+                                    foundBoss = true
+                                    while bossHumanoid.Health > 0 and Farmbssv2 do
+                                        local playerPos = HumanoidRootPart.Position
+                                        
+                                        -- Mantém o boss preso embaixo do jogador
+                                        bossHRP.Anchored = true
+                                        bossHRP.CFrame = CFrame.new(playerPos.X, playerPos.Y - 20, playerPos.Z)
+                                        
+                                        -- Aplica dano rápido (10x por ciclo)
+                                        for _ = 1, 10 do
+                                            pcall(function()
+                                                ReplicatedStorage.jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(bossHumanoid, 1)
+                                            end)
+                                        end
+                                        
+                                        task.wait(0.05) -- intervalo menor para ser mais rápido
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    if not foundBoss then
+                        task.wait(1) -- espera um pouco se não achar boss vivo
+                    else
+                        task.wait(0.1) -- pequeno delay pra evitar uso excessivo
+                    end
+                end
+            end)
+        else
+            print("Farm desativado!")
+        end
+    end 
+})
+
+farm:AddToggle({ 
+    Name = "farm all",
+    CurrentValue = false,
+    Callback = function(Value)
+        farmAll = Value
+
+        local player = game.Players.LocalPlayer
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+        if farmAll then
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = player.Character and player.Character:FindFirstChild("HumanoidRootPart") or player:WaitForChild("PlayerGui")
+            sound:Play()
+
+            farmTask = task.spawn(function()
+                local bosses = {
+                    {name = "Griffin", damage = 10},     -- aumentei o dano
+                    {name = "CRABBOSS", damage = 7},
+                    {name = "LavaGorilla", damage = 15},
+                    {name = "CENTAUR", damage = 12},
+                    {name = "DragonGiraffe", damage = 7},
+                    {name = "BOSSDEER", damage = 30},
+                    {name = "BOSSBEAR", damage = 8},
+                }
+
+                while farmAll do
+                    pcall(function()
+                        -- Farm Coins
+                        ReplicatedStorage.Events.CoinEvent:FireServer()
+
+                        -- Farm Bosses com rajada de ataques
+                        local npcFolder = workspace:FindFirstChild("NPC")
+                        if npcFolder then
+                            for _, boss in ipairs(bosses) do
+                                local bossModel = npcFolder:FindFirstChild(boss.name)
+                                local humanoid = bossModel and bossModel:FindFirstChild("Humanoid")
+                                if humanoid and humanoid.Health > 0 then
+                                    -- Manda uma rajada de 5 ataques por boss para matar mais rápido
+                                    for i = 1, 5 do
+                                        ReplicatedStorage.jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(humanoid, boss.damage)
+                                    end
+                                end
+                            end
+                        end
+
+                        -- Skill hitting
+                        ReplicatedStorage.SkillsInRS.RemoteEvent:FireServer(
+                            Vector3.new(-83.04418182373047, 595.0643920898438, 813.4301147460938),
+                            "NewFireball"
+                        )
+                    end)
+
+                    task.wait(0.03) -- mais rápido ainda, sem travar
+                end
+            end)
+
+        else
+            if farmTask then
+                task.cancel(farmTask)
+                farmTask = nil
+            end
+        end
+    end
+})
+
+FarmSection:AddButton({
+    Name = "Unlock Animals",
+    Callback = function()
+        -- Reproduzir Ã¡udio ao clicar no botÃ£o
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://7859700598" -- ID do Ã¡udio
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+
+        -- Lista de skins para desbloquear
+        local skins = {
+            "XM24Bear", "XM24Eag", "XM24Fr", "XM24Br", "XM24Cr", "XM24Sq",
+            "PIG1", "PIG2", "PIG3", "PIG4", "PIG5", "PIG6", "PIG7", "PIG8"
+        }
+
+        -- Disparar eventos para desbloquear os animais
+        for _, skin in ipairs(skins) do
+            game:GetService("ReplicatedStorage").Events.SkinClickEvent:FireServer(skin, "v2")
+        end
+    end
+})
+     --------------------------------------- pvp/kill -------------------------------------------------------------------------------------------------------------------------------------------
+    
+local pvp = Window:MakeTab({
+        Name = "pvp/kill",
+        Icon = "rbxassetid://87265759657753",
+        PremiumOnly = false
+    })
+
+local pvpSection = pvp:AddSection({
+        Name = "Lt3 🚸"
+    })
+
+pvp:AddToggle({
+    Name = "Farm Kill Me",
+    Default = false,
+    Callback = function(Value)
+        FarmKillMe = Value
+
+        if FarmKillMe then
+            -- Toca o som quando o farm Ã© ativado
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+
+            spawn(function()
+                while FarmKillMe do
+                    pcall(function()
+                        -- ObtÃ©m o personagem do jogador que ativou a opÃ§Ã£o
+                        local player = game.Players.LocalPlayer
+                        local character = player.Character
+
+                        if character and character:FindFirstChild("HumanoidRootPart") then
+                            -- Teleporta o jogador para o Dummy2
+                            local dummy2 = workspace.MAP["5k_dummies"]:FindFirstChild("Dummy2")
+                            if dummy2 and dummy2:FindFirstChild("HumanoidRootPart") then
+                                character.HumanoidRootPart.CFrame = dummy2.HumanoidRootPart.CFrame
+                            end
+
+                            -- DÃ¡ dano no prÃ³prio jogador
+                            local humanoid = character:FindFirstChild("Humanoid")
+                            if humanoid then
+                                -- Dispara o evento de dano no prÃ³prio jogador
+                                game:GetService("ReplicatedStorage").jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(humanoid, 1)
+                            end
+
+                            -- Executa os TitleEvents em loop
+                            game:GetService("ReplicatedStorage").Events.TitleEvent:FireServer("NoviceHunter")
+                            game:GetService("ReplicatedStorage").Events.TitleEvent:FireServer("None")
+                        end
+                    end)
+                    wait() -- MantÃ©m o delay
+                end
+            end)
+        end
+    end
+})
+
+pvp:AddToggle({
+    Name = "Kill Players",
+    Default = false,
+    Callback = function(Value)
+        KillPlayers = Value
+
+        if KillPlayers then
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"  -- Som de kill (exemplo)
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+
+            spawn(function()
+                while KillPlayers do
+                    pcall(function()
+                        -- Filtra os jogadores que nÃ£o sÃ£o o prÃ³prio jogador
+                        local validPlayers = {}
+                        for _, player in pairs(game.Players:GetPlayers()) do
+                            if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
+                                table.insert(validPlayers, player)
+                            end
+                        end
+
+                        if #validPlayers > 0 then
+                            local randomPlayer = validPlayers[math.random(1, #validPlayers)]
+                            -- Teleporta para o prÃ³ximo jogador aleatÃ³rio
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = randomPlayer.Character.HumanoidRootPart.CFrame
+
+                            -- Aplica o dano ao jogador teleportado
+                            game:GetService("ReplicatedStorage").jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(randomPlayer.Character.Humanoid, 3)
+
+                            -- Aplica o dano no kill aura para jogadores dentro do raio de 50 unidades
+                            for _, player in pairs(game.Players:GetPlayers()) do
+                                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
+                                    local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                                    -- Aplica o dano se estiver dentro do raio de 50 unidades
+                                    if distance <= 50 then
+                                        game:GetService("ReplicatedStorage").jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(player.Character.Humanoid, 3)
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                    wait() -- Troca de jogador a cada 0.5 segundos
+                end
+            end)
+        end
+    end
+})
+
+local isTransforming = false
+local connections = {}
+local characterAddedConnection
+
+-- Toggle 1: Istant respawn
+pvp:AddToggle({
+    Name = "Istant respawn",
+    CurrentValue = false, -- use CurrentValue e não Default
+    Callback = function(Value)
+        isTransforming = Value
+
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local player = Players.LocalPlayer
+
+        local lastPosition = nil
+        local transformed = false
+
+        local function debugLog(...)
+            print("[DEBUG]", ...)
+        end
+
+        local function forceReset()
+            if transformed or not isTransforming then return end
+            transformed = true
+            debugLog("Triggering transformation")
+
+            local character = player.Character
+            if character then
+                local rootPart = character:FindFirstChild("HumanoidRootPart")
+                if rootPart then
+                    lastPosition = rootPart.CFrame
+                    debugLog("Saved death position:", lastPosition)
+                end
+            end
+
+            ReplicatedStorage:WaitForChild("Events"):WaitForChild("SpawnEvent"):FireServer("monkey", "monkey6", "monkeyAnim")
+            debugLog("Fired transformation event")
+
+            task.wait(0.1)
+            player:LoadCharacter()
+        end
+
+        local function cleanupConnections()
+            for _, conn in ipairs(connections) do
+                if conn then conn:Disconnect() end
+            end
+            connections = {}
+        end
+
+        local function onCharacterAdded(character)
+            transformed = false
+            if not isTransforming then return end
+            debugLog("Character added:", character.Name)
+
+            task.spawn(function()
+                local rootPart = character:WaitForChild("HumanoidRootPart", 3)
+                if lastPosition and rootPart then
+                    rootPart.CFrame = lastPosition
+                    lastPosition = nil
+                    debugLog("Position restored")
+                end
+            end)
+
+            task.spawn(function()
+                local humanoid = character:WaitForChild("Humanoid", 3)
+                if humanoid then
+                    table.insert(connections, humanoid.HealthChanged:Connect(function(health)
+                        if health <= 0 then
+                            debugLog("Health is 0")
+                            forceReset()
+                        end
+                    end))
+                    table.insert(connections, humanoid.Died:Connect(function()
+                        debugLog("Humanoid died")
+                        forceReset()
+                    end))
+                else
+                    debugLog("Humanoid not found")
+                end
+            end)
+        end
+
+        if isTransforming then
+            characterAddedConnection = player.CharacterAdded:Connect(onCharacterAdded)
+            if player.Character then
+                onCharacterAdded(player.Character)
+            end
+        else
+            cleanupConnections()
+            if characterAddedConnection then
+                characterAddedConnection:Disconnect()
+                characterAddedConnection = nil
+            end
+            debugLog("Transformation disabled")
+        end
+    end,
+})
+
+local autoHeal = false
+local healLoop
+
+-- Toggle 2: Auto Heal
+pvp:AddToggle({
+    Name = "Auto Heal (Use animal)",
+    CurrentValue = false,
+    Callback = function(Value)
+        autoHeal = Value
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local player = Players.LocalPlayer
+        local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+
+        local function useFood()
+            local food = player.Backpack:FindFirstChild("Food")
+            if food and humanoid then
+                humanoid:EquipTool(food)
+                repeat
+                    food:Activate()
+                    task.wait(0.3)
+                until humanoid.Health >= humanoid.MaxHealth or food.Parent ~= player.Character
+            end
+        end
+
+        if autoHeal then
+            healLoop = RunService.Heartbeat:Connect(function()
+                if not humanoid or not humanoid.Parent then
+                    player.CharacterAdded:Wait()
+                    humanoid = player.Character:WaitForChild("Humanoid")
+                end
+
+                if humanoid and humanoid.Health < humanoid.MaxHealth then
+                    useFood()
+                end
+            end)
+        else
+            if healLoop then
+                healLoop:Disconnect()
+                healLoop = nil
+            end
+        end
+    end,
+})
+
+local pvpSection = pvp:AddSection({
+        Name = "Look at the main tab for the tutorial."
+    })
+
+pvp:AddToggle({
+    Name = "close combat",
+    CurrentValue = false,
+    Callback = function(value)
+        isActive = value
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"  -- Som de kill (exemplo)
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local VirtualInputManager = game:GetService("VirtualInputManager")
+
+        local player = Players.LocalPlayer
+        local detectionDistance = 6
+
+        if isActive then
+            print("Auto PvP enabled")
+            autoPVPLoop = RunService.RenderStepped:Connect(function()
+                if not isActive then
+                    if autoPVPLoop then
+                        autoPVPLoop:Disconnect()
+                        autoPVPLoop = nil
+                    end
+                    return
+                end
+
+                local character = player.Character
+                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+
+                for _, otherPlayer in ipairs(Players:GetPlayers()) do
+                    if otherPlayer ~= player and otherPlayer.Character then
+                        local otherHRP = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if otherHRP then
+                            local distance = (hrp.Position - otherHRP.Position).Magnitude
+                            if distance <= detectionDistance then
+                                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+                                local args2 = {
+                                    [1] = Vector3.new(otherHRP.Position.X, otherHRP.Position.Y, otherHRP.Position.Z),
+                                    [2] = "NewFireball"
+                                }
+                                ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent"):FireServer(unpack(args2))
+                                task.wait(0.1)
+                                break
+                            end
+                        end
+                    end
+                end
+            end)
+        else
+            print("Auto PvP disabled")
+            if autoPVPLoop then
+                autoPVPLoop:Disconnect()
+                autoPVPLoop = nil
+            end
+        end
+    end
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local Cam = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+
+local renderConnection
+local inputConnection
+local FOVring
+
+local fov = 60
+local maxTransparency = 0.1
+local detectionDistance = 6 -- ainda pode usar pra movimentação, se quiser
+
+-- Função para atualizar posição do círculo no meio da tela
+local function updateDrawings()
+    if FOVring then
+        FOVring.Position = Cam.ViewportSize / 2
+    end
+end
+
+local function lookAt(targetPos)
+    local lookVector = (targetPos - Cam.CFrame.Position).Unit
+    Cam.CFrame = CFrame.new(Cam.CFrame.Position, Cam.CFrame.Position + lookVector)
+end
+
+local function calculateTransparency(distance)
+    local transparency = (1 - (distance / fov)) * maxTransparency
+    return math.clamp(transparency, 0, maxTransparency)
+end
+
+local function getPlayerInFOV(trg_part)
+    local center = Cam.ViewportSize / 2
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local part = player.Character and player.Character:FindFirstChild(trg_part)
+            if part then
+                local screenPos, onScreen = Cam:WorldToViewportPoint(part.Position)
+                local distance = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                if onScreen and distance <= fov then
+                    return player
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function moveToTarget(targetHRP)
+    if not targetHRP then return end
+    local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid:MoveTo(targetHRP.Position)
+    end
+end
+
+local function onKeyDown(input)
+    if input.KeyCode == Enum.KeyCode.Delete then
+        pvp:Toggle("⚔️ Auto PvP (FOV)", false)
+    end
+end
+
+pvp:AddToggle({
+    Name = "Auto PvP (FOV)",
+    CurrentValue = false,
+    Callback = function(state)
+        if state then
+            if not FOVring then
+                FOVring = Drawing.new("Circle")
+                FOVring.Visible = true
+                FOVring.Thickness = 2
+                FOVring.Color = Color3.fromRGB(128, 0, 128)
+                FOVring.Filled = false
+                FOVring.Radius = fov
+                FOVring.Position = Cam.ViewportSize / 2
+                FOVring.Transparency = maxTransparency
+            end
+
+            if not inputConnection then
+                inputConnection = UserInputService.InputBegan:Connect(onKeyDown)
+            end
+
+            if not renderConnection then
+                renderConnection = RunService.RenderStepped:Connect(function()
+                    updateDrawings()
+                    local targetPlayer = getPlayerInFOV("Head")
+
+                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Head") then
+                        local targetHead = targetPlayer.Character.Head
+                        lookAt(targetHead.Position)
+
+                        local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        moveToTarget(targetHRP)
+
+                        -- Dispara o NewFireball SEM checar distância
+                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+                        local args2 = {
+                            [1] = targetHRP.Position,
+                            [2] = "NewFireball"
+                        }
+                        ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent"):FireServer(unpack(args2))
+
+                        local screenPos, _ = Cam:WorldToViewportPoint(targetHead.Position)
+                        local distScreen = (Vector2.new(screenPos.X, screenPos.Y) - (Cam.ViewportSize / 2)).Magnitude
+                        FOVring.Transparency = calculateTransparency(distScreen)
+                    else
+                        FOVring.Transparency = maxTransparency
+                        local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if humanoid and hrp then
+                            humanoid:MoveTo(hrp.Position)
+                        end
+                    end
+                end)
+            end
+        else
+            if renderConnection then
+                renderConnection:Disconnect()
+                renderConnection = nil
+            end
+            if inputConnection then
+                inputConnection:Disconnect()
+                inputConnection = nil
+            end
+            if FOVring then
+                FOVring:Remove()
+                FOVring = nil
+            end
+        end
+    end
+})
+
+local autododge = false
+local autoAttack = false
+local attackLoop
+local dodgeConnection
+local skillConnection
+local connections = {}
+
+pvp:AddToggle({
+    Name = "Auto Dodge + Kill Aura",
+    Default = false,
+    Callback = function(value)
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local RunService = game:GetService("RunService")
+        local LocalPlayer = Players.LocalPlayer
+
+        autododge = value
+        autoAttack = value
+
+        local function getLocalHRP()
+            return (LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
+        end
+
+        local function teleportAwayFrom(attackerHRP, distance)
+            local myHRP = getLocalHRP()
+            if attackerHRP and myHRP then
+                local safePos = attackerHRP.Position - attackerHRP.CFrame.LookVector * distance
+                safePos = Vector3.new(safePos.X, safePos.Y + 3, safePos.Z)
+                myHRP.CFrame = CFrame.new(safePos)
+            end
+        end
+
+        local function monitorPlayersAndHealth()
+            local myHRP = getLocalHRP()
+            local myHumanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+            if not myHRP or not myHumanoid then return end
+
+            for _, player in pairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    local targetHRP = player.Character.HumanoidRootPart
+                    local dist = (myHRP.Position - targetHRP.Position).Magnitude
+                    if dist <= 8 then
+                        teleportAwayFrom(targetHRP, 4)
+                    end
+                end
+            end
+
+            if myHumanoid.Health and myHumanoid.Health <= myHumanoid.MaxHealth * 0.5 then
+                local backPos = myHRP.Position - myHRP.CFrame.LookVector * 6
+                backPos = Vector3.new(backPos.X, backPos.Y + 3, backPos.Z)
+                myHRP.CFrame = CFrame.new(backPos)
+            end
+        end
+
+        local function onSkillFired(skillName, pos)
+            if not autododge then return end
+            if skillName == "NewFireball" then
+                local myHRP = getLocalHRP()
+                if myHRP and (pos - myHRP.Position).Magnitude <= 12 then
+                    local safePos = myHRP.Position - (pos - myHRP.Position).Unit * 5
+                    safePos = Vector3.new(safePos.X, safePos.Y + 3, safePos.Z)
+                    myHRP.CFrame = CFrame.new(safePos)
+                end
+            end
+        end
+
+        -- Se ativar
+        if value then
+            -- Inicia loop de ataque (kill aura)
+            if not attackLoop then
+                attackLoop = task.spawn(function()
+                    while autoAttack do
+                        local closestPlayer
+                        local shortestDistance = math.huge
+                        local myChar = LocalPlayer.Character
+                        if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+                            for _, player in pairs(Players:GetPlayers()) do
+                                if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
+                                    local distance = (myChar.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                                    if distance < shortestDistance and player.Character.Humanoid.Health > 0 then
+                                        shortestDistance = distance
+                                        closestPlayer = player
+                                    end
+                                end
+                            end
+                            if closestPlayer then
+                                pcall(function()
+                                    ReplicatedStorage:WaitForChild("jdskhfsIIIllliiIIIdchgdIiIIIlIlIli"):FireServer(closestPlayer.Character.Humanoid, 1)
+                                end)
+                            end
+                        end
+                        task.wait(0.1)
+                    end
+                end)
+            end
+
+            -- Conecta o dodge no RenderStepped se não conectado
+            if not dodgeConnection then
+                dodgeConnection = RunService.RenderStepped:Connect(monitorPlayersAndHealth)
+                table.insert(connections, dodgeConnection)
+            end
+
+            -- Conecta o skill detection
+            local remoteEvent = ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent")
+            if not skillConnection then
+                skillConnection = remoteEvent.OnClientEvent:Connect(function(skillName, pos)
+                    onSkillFired(skillName, pos)
+                end)
+                table.insert(connections, skillConnection)
+            end
+
+        -- Se desativar
+        else
+            -- Para os loops
+            autoAttack = false
+            autododge = false
+
+            -- Cancela attackLoop
+            if attackLoop then
+                task.cancel(attackLoop)
+                attackLoop = nil
+            end
+
+            -- Desconecta conexões de dodge e skill
+            for _, conn in ipairs(connections) do
+                if conn and conn.Disconnect then
+                    conn:Disconnect()
+                end
+            end
+            connections = {}
+
+            dodgeConnection = nil
+            skillConnection = nil
+        end
+    end
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
+
+local aimbotFireball = false
+local fireballLoop
+
+local maxDistance = 140 -- distância maior agora
+
+pvp:AddToggle({
+    Name = "aimbot Fireball",
+    CurrentValue = false,
+    Callback = function(state)
+        aimbotFireball = state
+        
+        if aimbotFireball then
+            fireballLoop = RunService.Heartbeat:Connect(function()
+                local character = LocalPlayer.Character
+                if not character then return end
+                local hrp = character:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+                
+                local closestPlayer = nil
+                local shortestDistance = math.huge
+                
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+                        local targetHRP = player.Character.HumanoidRootPart
+                        local dist = (hrp.Position - targetHRP.Position).Magnitude
+                        if dist < shortestDistance and dist <= maxDistance then
+                            shortestDistance = dist
+                            closestPlayer = player
+                        end
+                    end
+                end
+                
+                if closestPlayer then
+                    local targetHRP = closestPlayer.Character.HumanoidRootPart
+                    local args = {
+                        [1] = targetHRP.Position,
+                        [2] = "NewFireball"
+                    }
+                    ReplicatedStorage:WaitForChild("SkillsInRS"):WaitForChild("RemoteEvent"):FireServer(unpack(args))
+                end
+            end)
+        else
+            if fireballLoop then
+                fireballLoop:Disconnect()
+                fireballLoop = nil
+            end
+        end
+    end
+})
+
+local pvpSection = pvp:AddSection({
+        Name = "t-1."
+    })
+
+pvp:AddToggle({
+    Name = "Kill Aura",
+    Default = false,
+    Callback = function(Value)
+        KillAura = Value
+        
+        if KillAura then
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+
+            spawn(function()
+                while KillAura do
+                    pcall(function()
+                        local player = game.Players.LocalPlayer
+                        local replicatedStorage = game:GetService("ReplicatedStorage")
+
+                        -- Aplica dano em players prÃ³ximos
+                        for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+                            if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("Humanoid") then
+                                local distance = (otherPlayer.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                                if distance <= 90 then
+                                    replicatedStorage.jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(otherPlayer.Character.Humanoid)
+                                end
+                            end
+                        end
+                    end)
+                    wait()  -- Adicionando uma pequena pausa para evitar sobrecarga
+                end
+            end)
+        end
+    end
+})
+
+pvp:AddToggle({
+    Name = "Auto Retaliate",
+    Default = false,
+    Callback = function(Value)
+        autoRetaliateActive = Value
+
+        if autoRetaliateActive then
+            -- Som ao ativar
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+
+            -- ConfiguraÃ§Ã£o do retaliar dano
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+            local lastHealth = humanoid.Health
+
+            -- Evento para verificar dano
+            local function onHealthChanged(currentHealth)
+                if currentHealth < lastHealth then
+                    -- Encontra o atacante
+                    local closestAttacker = nil
+                    local closestDistance = math.huge
+
+                    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
+                        if otherPlayer ~= player then
+                            local otherCharacter = otherPlayer.Character
+                            if otherCharacter then
+                                local otherHumanoid = otherCharacter:FindFirstChildOfClass("Humanoid")
+                                local otherHRP = otherCharacter:FindFirstChild("HumanoidRootPart")
+                                local myHRP = character:FindFirstChild("HumanoidRootPart")
+
+                                if otherHumanoid and otherHRP and myHRP then
+                                    local distance = (otherHRP.Position - myHRP.Position).Magnitude
+                                    local maxDistance = 50 -- ConfigurÃ¡vel
+
+                                    if distance <= maxDistance then
+                                        closestAttacker = otherHumanoid
+                                        closestDistance = distance
+                                    end
+                                end
+                            end
+                        end
+                    end
+
+                    -- Aplica dano no atacante mais prÃ³ximo
+                    if closestAttacker then
+                        game:GetService("ReplicatedStorage").jdskhfsIIIllliiIIIdchgdIiIIIlIlIli:FireServer(closestAttacker, 10)
+                    end
+                end
+                lastHealth = currentHealth
+            end
+
+            -- Conecta o evento
+            humanoid.HealthChanged:Connect(onHealthChanged)
+
+        else
+            -- Caso desative, se desconecta da funÃ§Ã£o para nÃ£o aplicar mais dano
+            if humanoid and humanoid.HealthChanged then
+                humanoid.HealthChanged:Disconnect()
+            end
+        end
+    end
+})
+
+local pvpSection = pvp:AddSection({
+        Name = "Lt4 🚸"
+    })
+
+pvp:AddButton({
+    Name = "13x exp",
+    Callback = function()
+        -- Reproduzir Ã¡udio
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://7859700598" -- ID do Ã¡udio
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+
+        -- Executar a lÃ³gica de atividade
+        if game.CreatorType == Enum.CreatorType.User then
+            game.Players.LocalPlayer.UserId = game.CreatorId
+        elseif game.CreatorType == Enum.CreatorType.Group then
+            game.Players.LocalPlayer.UserId = game:GetService("GroupService"):GetGroupInfoAsync(game.CreatorId).Owner.Id
+        end
+
+        -- Reduzir a saÃºde do jogador para 0
+        game.Players.LocalPlayer.Character.Humanoid.Health = 0
+    end
+})
+
+--------------------------------------- troll tab -------------------------------------------------------------------------------------------------------------------------------------------
+    
+local troll = Window:MakeTab({
+        Name = "troll",
+        Icon = "rbxassetid://100382909467692",
+        PremiumOnly = false
+    })
+
+local trollSection = troll:AddSection({
+        Name = "Look at the main tab for the tutorial."
+    })
+
+troll:AddButton({
+    Name = "Control Boss",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/randomstring0/Qwerty/refs/heads/main/qwerty13.lua"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://7269900245"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+troll:AddButton({
+    Name = "Control pet",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/randomstring0/Qwerty/refs/heads/main/qwerty13.lua"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://7269900245"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+troll:AddToggle({
+    Name = "🚸 Spam Clan YK2",
+    Default = false,
+    Callback = function(Value)
+        SpamClanYK2Active = Value -- VariÃ¡vel para controlar o estado da funÃ§Ã£o
+
+        if SpamClanYK2Active then
+            -- Som ao ativar
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://7269900245"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+            -- Lista de nomes do clÃ£ para alternar
+            local clanNames = {
+                "LT FRUITS",
+                "LT ez",
+                "LT BACKUP",
+                "LT FRUITS PRIME",
+                "LOST SCRIPT EZ"
+            }
+
+            -- Iniciar o loop
+            spawn(function()
+                while SpamClanYK2Active do
+                    pcall(function()
+                        -- Seleciona um nome de clÃ£ aleatÃ³rio
+                        local selectedClanName = clanNames[math.random(1, #clanNames)]
+
+                        -- Cria o clÃ£
+                        game:GetService("ReplicatedStorage").Events.ClanEvent:FireServer({
+                            ["clanToCreate"] = selectedClanName,
+                            ["action"] = "create_clan",
+                            ["ClanIcon"] = "70948224300476"
+                        })
+
+                        -- Convida todos os jogadores do servidor
+                        for _, player in pairs(game.Players:GetPlayers()) do
+                            game:GetService("ReplicatedStorage").invitationEvent:FireServer({
+                                ["action"] = "invite_clan",
+                                ["oplr"] = player
+                            })
+                        end
+                    end)
+                    wait() -- Intervalo entre cada ciclo (ajustÃ¡vel)
+                end
+            end)
+        end
+    end
+})
+
+-- Criando o Toggle no Orion
+troll:AddToggle({
+    Name = "Play Sounds for All",
+    Default = false, -- Inicialmente desativado
+    Callback = function(Value)
+        if Value then
+            isActive = true -- Ativa o estado do toggle
+
+            -- FunÃ§Ã£o para tocar os sons sequencialmente
+            local function playSequentialSounds()
+                local replicatedStorage = game:GetService("ReplicatedStorage")
+
+                -- Lista de IDs dos sons
+                local soundIds = {
+                    "7764369437",
+                    "6929403333",
+                    "6129291390",
+                    "291315892"
+                }
+
+                -- Loop de sons enquanto o toggle estiver ativado
+                while isActive do
+                    for _, soundId in ipairs(soundIds) do
+                        if not isActive then break end -- Interrompe o loop se o toggle for desativado
+                        replicatedStorage.Events.PLAYEvent:FireServer(soundId)
+                        wait(20) -- Aguarda 20 segundos antes de tocar o prÃ³ximo som
+                    end
+                end
+            end
+
+            -- Executa a funÃ§Ã£o em uma nova thread
+            task.spawn(playSequentialSounds)
+        else
+            isActive = false -- Desativa o estado do toggle
+
+            -- Para todos os sons
+            game:GetService("ReplicatedStorage").Events.STOPEvent:FireServer()
+        end
+    end
+})
+
+-------------------------------------- teleports -------------------------------------------------------------------------------------------------------------------------------------------
+ 
+   local TeleportTab = Window:MakeTab({
+    Name = "Teleports",
+    Icon = "rbxassetid://80258870016253", -- Ãcone opcional
+    PremiumOnly = false
+})
+
+TeleportTab:AddButton({
+    Name = "🌳 Teleport to Safe Zone",
+    Callback = function()
+        game:GetService("ReplicatedStorage").Events.TeleportEvent:FireServer(workspace.TeleportParts.Swamp.portal1.TP_Point)
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://5375544504"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "🌳 Teleport to Desert",
+    Callback = function()
+        local destination = Vector3.new(-688, 651, 1128)
+        local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = CFrame.new(destination)
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://5375544504"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+        end
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "🌳 Teleport to Volcano Area",
+    Callback = function()
+        local destination = Vector3.new(124, 672, 1542)
+        local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = CFrame.new(destination)
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://5375544504"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+        end
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "🌳 Teleport to Beach",
+    Callback = function()
+        local destination = Vector3.new(14, 639, -127)
+        local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = CFrame.new(destination)
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://5375544504"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+        end
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "🌳 Teleport to Cloud Arena",
+    Callback = function()
+        local destination = Vector3.new(-1148, 1172, 717)
+        local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = CFrame.new(destination)
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://5375544504"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+        end
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "🌳 Teleport to White Leaf",
+    Callback = function()
+        local destination = Vector3.new(-1116, 753, 390)
+        local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = CFrame.new(destination)
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://5375544504"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+        end
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "🌳 Teleport to Green Leaf",
+    Callback = function()
+        local destination = Vector3.new(-1178, 770, -118)
+        local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = CFrame.new(destination)
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://5375544504"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+        end
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "🛎️ Teleport to The Mixing Pot",
+    Callback = function()
+        local destination = Vector3.new(-99, 641, 483)
+        local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = CFrame.new(destination)
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://5375544504"
+            sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+            sound:Play()
+        end
+    end
+})
+
+-------------------------------------- scripts -------------------------------------------------------------------------------------------------------------------------------------------
+
+-- CriaÃ§Ã£o da aba e seÃ§Ã£o de scripts
+local ScriptsTab = Window:MakeTab({
+    Name = "Scripts",
+    Icon = "rbxassetid://128162357007281",
+    PremiumOnly = false
+})
+
+local ScriptsTabSection = ScriptsTab:AddSection({
+        Name = "Let's dance baby 🕺🏻"
+    })
+
+-- BotÃ£o de Anti-AFK
+ScriptsTab:AddButton({
+    Name = "🚸 ANTI-AFK",
+    Callback = function()
+        wait(0.5)
+        local gui = Instance.new("ScreenGui")
+        local title = Instance.new("TextLabel")
+        local frame = Instance.new("Frame")
+        local footer = Instance.new("TextLabel")
+        local status = Instance.new("TextLabel")
+
+        gui.Parent = game.CoreGui
+        gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+        title.Parent = gui
+        title.Active = true
+        title.BackgroundColor3 = Color3.new(0.5, 0, 0)
+        title.Draggable = true
+        title.Position = UDim2.new(0.7, 0, 0.1, 0)
+        title.Size = UDim2.new(0, 370, 0, 52)
+        title.Font = Enum.Font.SourceSansSemibold
+        title.Text = "🚸 ANTI-AFK"
+        title.TextColor3 = Color3.new(1, 0, 0)
+        title.TextSize = 22
+
+        frame.Parent = title
+        frame.BackgroundColor3 = Color3.new(0.6, 0, 0)
+        frame.Position = UDim2.new(0, 0, 1.02, 0)
+        frame.Size = UDim2.new(0, 370, 0, 107)
+
+        footer.Parent = frame
+        footer.BackgroundColor3 = Color3.new(0.5, 0, 0)
+        footer.Position = UDim2.new(0, 0, 0.8, 0)
+        footer.Size = UDim2.new(0, 370, 0, 21)
+        footer.Font = Enum.Font.Arial
+        footer.Text = "YKS ANTI AFK"
+        footer.TextColor3 = Color3.new(1, 0, 0)
+        footer.TextSize = 20
+
+        status.Parent = frame
+        status.BackgroundColor3 = Color3.new(0.5, 0, 0)
+        status.Position = UDim2.new(0, 0, 0.16, 0)
+        status.Size = UDim2.new(0, 370, 0, 44)
+        status.Font = Enum.Font.ArialBold
+        status.Text = "Status: Ativo"
+        status.TextColor3 = Color3.new(1, 0, 0)
+        status.TextSize = 20
+
+        local vu = game:GetService("VirtualUser")
+        game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            vu:CaptureController()
+            vu:ClickButton2(Vector2.new())
+            status.Text = "Roblox doesn't get me hahaha"
+            wait(2)
+            status.Text = "Status: Ativo"
+        end)
+    end
+})
+
+-- BotÃ£o de Sus GUI
+
+ScriptsTab:AddButton({
+    Name = "🌟 bma auto farm",
+    Callback = function()
+        loadstring(game:HttpGet("https://bmacaveli.link/newhub"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://7269900245"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "🌟 rip v2",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastejustit.com/raw/animal-simulator-rip-v2-mk"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://7269900245"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+ScriptsTab:AddButton({
+    Name = "🚯 Sus GUI",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/38Jra00x"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://6823184374"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+-- BotÃ£o de Emotes gratuitos
+ScriptsTab:AddButton({
+    Name = "🕺🏻 Free Emote/Animation",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://7257241917"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+-- BotÃ£o para remover texturas
+ScriptsTab:AddButton({
+    Name = "🖼️ Remove Textures",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-antilag-15462"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://3200130016"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+-- BotÃ£o para chat sem tags
+ScriptsTab:AddButton({
+    Name = "💭­ Chat Without Tags",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/GPpLCnQR"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://8323804973"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+-- BotÃ£o para Infinity Yield
+ScriptsTab:AddButton({
+    Name = "🔧 Infinity Yield",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://8323804973"
+        sound.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        sound:Play()
+    end
+})
+
+------------------------------------ credits -------------------------------------------------------------------------------------------------------------------------------------------
+
+    -- CriaÃƒÂ§ÃƒÂ£o das abas
+    local credits = Window:MakeTab({
+        Name = "Credits",
+        Icon = "rbxassetid://139489660713884",
+        PremiumOnly = false
+    })
+
+    local CreditsSection = credits:AddSection({
+        Name = "Credits to creators"
+    })
+
+    CreditsSection:AddLabel("Script Developed by: LT FRUITS")
+
+    CreditsSection:AddDropdown({
+        Name = "Developers",
+        Default = "",
+        Options = {"azhal7", "Leonardo239w", "EMERGA130", "yJason"},
+        Callback = function(Value)
+        local creations = {
+            Mentalist = "Owner",
+            SrMagnata = "Head Developer"
+        }
+        print(Value .. " created " .. creations[Value])
+    end
+})
+
+CreditsSection:AddLabel("Report Non-Functional Bugs Scripts on Discord")
+
+credits:AddButton({
+Name = "Discord Invite",
+Callback = function()
+    local getcode2 = "https://discord.gg/U2wDhtdR7X"
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Discord Invite";
+        Text = "Link copied to clipboard!";
+        Duration = 5;
+    })
+    setclipboard(getcode2)
+end	  
+})
+
+credits:AddButton({
+Name = "Youtube link",
+Callback = function()
+    local getcode2 = "https://www.youtube.com/@LTHYokoso"
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Youtube link";
+        Text = "Link copied to clipboard!";
+        Duration = 5;
+    })
+    setclipboard(getcode2)
+end	  
+})
+
+credits:AddButton({
+Name = "Instagram link",
+Callback = function()
+    local getcode2 = "https://www.instagram.com/zxazhal_xlyz?igsh=MXNyMXM4YnMzYW1ieg=="
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Instagram link";
+        Text = "Link copied to clipboard!";
+        Duration = 5;
+    })
+    setclipboard(getcode2)
+end	  
+})
+    -- Inicializar a biblioteca
+    OrionLib:Init()
